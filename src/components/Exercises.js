@@ -12,19 +12,21 @@ const Exercises = ({ exercises, setExercises, bodyPart }) => {
 
 	useEffect(() => {
 		const fetchExercisesData = async () => {
-			let exercisesData = [];
-			if (bodyPart === 'all') {
-				exercisesData = await fetchData('https://exercisedb.p.rapidapi.com/exercises', exerciseOptions);
-			} else {
-				exercisesData = await fetchData(`https://exercisedb.p.rapidapi.com/exercises/bodyPart/${bodyPart}`, exerciseOptions);
-			}
+			try {
+				let exercisesData = [];
+				if (bodyPart === 'all') {
+					exercisesData = await fetchData('https://exercisedb.p.rapidapi.com/exercises', exerciseOptions);
+				} else {
+					exercisesData = await fetchData(`https://exercisedb.p.rapidapi.com/exercises/bodyPart/${bodyPart}`, exerciseOptions);
+				}
 
-			console.log(exercisesData); // Debugging the fetched data
-
-			if (Array.isArray(exercisesData)) {
-				setExercises(exercisesData);
-			} else {
-				console.error('Unexpected data format:', exercisesData);
+				if (Array.isArray(exercisesData)) {
+					setExercises(exercisesData);
+				} else {
+					console.error('Unexpected data format:', exercisesData);
+				}
+			} catch (error) {
+				console.error('Error fetching exercises:', error);
 			}
 		};
 
@@ -34,7 +36,7 @@ const Exercises = ({ exercises, setExercises, bodyPart }) => {
 	// Pagination logic
 	const indexOfLastExercise = currentPage * exercisesPerPage;
 	const indexOfFirstExercise = indexOfLastExercise - exercisesPerPage;
-	const currentExercises = Array.isArray(exercises) ? exercises.slice( indexOfFirstExercise, indexOfLastExercise ) : [];
+	const currentExercises = Array.isArray(exercises) ? exercises.slice(indexOfFirstExercise, indexOfLastExercise) : [];
 
 	const paginate = (event, value) => {
 		setCurrentPage(value);
@@ -54,7 +56,7 @@ const Exercises = ({ exercises, setExercises, bodyPart }) => {
 				))}
 			</Stack>
 			<Stack sx={{ mt: { lg: '114px', xs: '70px' } }} alignItems="center">
-				{Array.isArray(exercises) && exercises.length > 9 && (
+				{Array.isArray(exercises) && exercises.length > exercisesPerPage && (
 					<Pagination
 						color="standard"
 						shape="rounded"
