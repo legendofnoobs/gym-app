@@ -159,23 +159,34 @@ const SearchExercises = ({ setExercises, bodyPart, setBodyPart }) => {
 
 	useEffect(() => {
 		const fetchExercisesData = async () => {
-			const bodyPartsData = await fetchData('https://exercisedb.p.rapidapi.com/exercises/bodyPartList', exerciseOptions);
-
-			setBodyParts(['all', ...bodyPartsData]);
+			try {
+				const bodyPartsData = await fetchData('https://exercisedb.p.rapidapi.com/exercises/bodyPartList', exerciseOptions);
+				
+				// Ensure bodyPartsData is an array before using the spread operator
+				if (Array.isArray(bodyPartsData)) {
+					setBodyParts(["all", ...bodyPartsData]);
+				} else {
+					console.error('Expected bodyPartsData to be an array, but received:', bodyPartsData);
+					setBodyParts(["all",...bodyPartsData]); // Default to "all" if data is not an array
+				}
+			} catch (error) {
+				console.error('Error fetching body parts data:', error);
+			}
 		};
-
+	
 		fetchExercisesData();
 	}, []);
+	
 
 	const handleSearch = async () => {
 		if (search) {
-			const exercisesData = await fetchData('https://exercisedb.p.rapidapi.com/exercises', exerciseOptions);
+			const exercisesData = await fetchData('https://exercisedb.p.rapidapi.com/exercises?limit=0', exerciseOptions);
 
 			const searchedExercises = exercisesData.filter(
 				(item) => item.name.toLowerCase().includes(search)
 					|| item.target.toLowerCase().includes(search)
 					|| item.equipment.toLowerCase().includes(search)
-					|| item.bodyPart.toLowerCase().includes(search),
+					|| item.bodyPart.toLowerCase().includes(search)
 			);
 
 			window.scrollTo({ top: 1800, left: 100, behavior: 'smooth' });
